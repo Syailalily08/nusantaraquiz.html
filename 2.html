@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Petualangan Nusantara</title>
+    <title>by syaila a.z</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f8ff;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+            text-align: center;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            color: #d9534f;
+            text-shadow: 1px 1px 2px #aaa;
+        }
+        
+        .game-area {
+            margin-top: 20px;
+            border: 2px solid #ccc;
+            padding: 15px;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        
+        .score-display {
+            font-size: 18px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        .question-area {
+            margin: 20px 0;
+            padding: 10px;
+            background-color: #e9ecef;
+            border-radius: 5px;
+        }
+        
+        .choice-btn {
+            display: block;
+            width: 90%;
+            margin: 10px auto;
+            padding: 10px;
+            background-color: #d9534f;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        
+        .choice-btn:hover {
+            background-color: #c9302c;
+        }
+        
+        .feedback {
+            margin: 15px 0;
+            padding: 10px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        
+        .correct {
+            background-color: #dff0d8;
+            color: #3c763d;
+        }
+        
+        .incorrect {
+            background-color: #f2dede;
+            color: #a94442;
+        }
+        
+        .next-btn, .start-btn {
+            padding: 10px 20px;
+            background-color: #5bc0de;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        
+        .next-btn:hover, .start-btn:hover {
+            background-color: #46b8da;
+        }
+        
+        .game-over {
+            margin-top: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #d9534f;
+        }
+        
+        .batik-border {
+            border: 20px solid transparent;
+            border-image: linear-gradient(45deg, #d9534f 25%, #f0ad4e 25%, #f0ad4e 50%, #5bc0de 50%, #5bc0de 75%, #5cb85c 75%) 1;
+            padding: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .player-info {
+            background-color: #e9ecef;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+
+        .health-bar {
+            height: 20px;
+            background-color: #ddd;
+            border-radius: 10px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+
+        .health-fill {
+            height: 100%;
+            background-color: #5cb85c;
+            transition: width 0.3s ease;
+        }
+
+        .status-area {
+            display: flex;
+            justify-content: space-around;
+            margin: 15px 0;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .quiz-progress {
+            margin-top: 10px;
+            font-style: italic;
+        }
+
+        .result-message {
+            font-size: 20px;
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #e9ecef;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="batik-border">
+            <h1>PETUALANGAN NUSANTARA</h1>
+            <p>Selamat datang di permainan kuis budaya Indonesia!</p>
+        </div>
+        
+        <div class="player-info">
+            <div id="player-name">Petualang: -</div>
+            <div>Nyawa:</div>
+            <div class="health-bar">
+                <div class="health-fill" id="health" style="width: 100%;"></div>
+            </div>
+        </div>
+        
+        <div class="status-area">
+            <div class="score-display">Skor: <span id="score">0</span></div>
+            <div>Level: <span id="level">1</span></div>
+        </div>
+        
+        <div id="start-screen">
+            <p>Petualangan untuk menjelajahi budaya dan tradisi Nusantara dimulai!</p>
+            <p>Jawab pertanyaan dengan benar untuk mendapatkan poin dan meningkatkan level.</p>
+            <p>Masukkan namamu untuk memulai:</p>
+            <input type="text" id="name-input" placeholder="Nama Petualang">
+            <button class="start-btn" onclick="startGame()">Mulai Petualangan</button>
+        </div>
+        
+        <div id="game-area" class="game-area hidden">
+            <div class="question-area">
+                <h3 id="question-text">Pertanyaan akan muncul di sini</h3>
+                <div class="quiz-progress">Pertanyaan <span id="current-question">1</span> dari <span id="total-questions">10</span></div>
+            </div>
+            
+            <div id="choices-area">
+                <!-- Choices will be added dynamically -->
+            </div>
+            
+            <div id="feedback" class="feedback hidden"></div>
+            
+            <button id="next-btn" class="next-btn hidden" onclick="nextQuestion()">Pertanyaan Berikutnya</button>
+        </div>
+        
+        <div id="game-over-screen" class="hidden">
+            <div class="game-over">Permainan Selesai!</div>
+            <div class="result-message" id="result-message"></div>
+            <div class="score-display">Skor Akhir: <span id="final-score">0</span></div>
+            <button class="start-btn" onclick="resetGame()">Main Lagi</button>
+        </div>
+    </div>
+
+    <script>
+        // Data pertanyaan dan jawaban tentang Indonesia
+        const questions = [
+            {
+                question: "Pulau apakah yang memiliki julukan 'Pulau Dewata'?",
+                choices: ["Sumatra", "Jawa", "Bali", "Kalimantan"],
+                correctAnswer: 2,
+                explanation: "Bali dikenal dengan julukan 'Pulau Dewata' karena kuatnya tradisi Hindu dan banyaknya pura di pulau tersebut."
+            },
+            {
+                question: "Alat musik tradisional apakah yang terbuat dari bambu dan dimainkan dengan cara dipukul?",
+                choices: ["Angklung", "Gamelan", "Sasando", "Kolintang"],
+                correctAnswer: 0,
+                explanation: "Angklung adalah alat musik tradisional dari Jawa Barat yang terbuat dari bambu dan dimainkan dengan cara digoyang atau dipukul."
+            },
+            {
+                question: "Tari Saman berasal dari provinsi?",
+                choices: ["Aceh", "Sumatra Utara", "Sumatra Barat", "Riau"],
+                correctAnswer: 0,
+                explanation: "Tari Saman berasal dari Aceh dan dikenal sebagai 'tari seribu tangan' karena gerakan tangannya yang cepat dan terkoordinasi."
+            },
+            {
+                question: "Monumen Nasional (Monas) terletak di kota?",
+                choices: ["Bandung", "Surabaya", "Jakarta", "Yogyakarta"],
+                correctAnswer: 2,
+                explanation: "Monumen Nasional (Monas) terletak di Jakarta, ibukota Indonesia."
+            },
+            {
+                question: "Danau terbesar di Indonesia adalah?",
+                choices: ["Danau Toba", "Danau Sentani", "Danau Maninjau", "Danau Batur"],
+                correctAnswer: 0,
+                explanation: "Danau Toba di Sumatra Utara adalah danau vulkanik terbesar di Indonesia dan juga danau vulkanik terbesar di dunia."
+            },
+            {
+                question: "Wayang Kulit berasal dari daerah?",
+                choices: ["Bali", "Jawa", "Sumatra", "Sulawesi"],
+                correctAnswer: 1,
+                explanation: "Wayang Kulit berasal dari Jawa dan merupakan salah satu seni pertunjukan tertua di Indonesia."
+            },
+            {
+                question: "Apa nama puncak tertinggi di Indonesia?",
+                choices: ["Puncak Jaya", "Gunung Semeru", "Gunung Kerinci", "Gunung Rinjani"],
+                correctAnswer: 0,
+                explanation: "Puncak Jaya (juga dikenal sebagai Puncak Cartensz atau Gunung Jayawijaya) di Papua adalah puncak tertinggi di Indonesia dengan ketinggian 4.884 meter."
+            },
+            {
+                question: "Batik yang dikenal dengan motif 'Mega Mendung' berasal dari daerah?",
+                choices: ["Yogyakarta", "Pekalongan", "Cirebon", "Solo"],
+                correctAnswer: 2,
+                explanation: "Motif 'Mega Mendung' yang menggambarkan awan adalah ciri khas batik dari daerah Cirebon, Jawa Barat."
+            },
+            {
+                question: "Rumah adat 'Tongkonan' berasal dari suku?",
+                choices: ["Dayak", "Batak", "Toraja", "Asmat"],
+                correctAnswer: 2,
+                explanation: "Tongkonan adalah rumah adat suku Toraja di Sulawesi Selatan dengan atap melengkung yang khas."
+            },
+            {
+                question: "Rendang adalah masakan tradisional dari daerah?",
+                choices: ["Jawa Barat", "Sumatra Barat", "Bali", "Sulawesi Selatan"],
+                correctAnswer: 1,
+                explanation: "Rendang adalah masakan tradisional Minangkabau dari Sumatra Barat yang telah diakui sebagai salah satu makanan terlezat di dunia."
+            },
+            {
+                question: "Apa nama tarian perang tradisional dari Papua?",
+                choices: ["Tari Kecak", "Tari Reog", "Tari Cakalele", "Tari Piring"],
+                correctAnswer: 2,
+                explanation: "Tari Cakalele adalah tarian perang tradisional dari Maluku dan Papua yang biasanya diiringi dengan tifa dan dilakukan oleh penari pria yang membawa perisai dan pedang."
+            },
+            {
+                question: "Pulau manakah yang dijuluki sebagai 'Pulau Seribu Masjid'?",
+                choices: ["Jawa", "Sulawesi", "Sumatra", "Lombok"],
+                correctAnswer: 3,
+                explanation: "Lombok di Nusa Tenggara Barat dijuluki 'Pulau Seribu Masjid' karena banyaknya masjid di pulau tersebut."
+            },
+            {
+                question: "Alat musik Sasando berasal dari daerah?",
+                choices: ["Nusa Tenggara Timur", "Maluku", "Kalimantan", "Sulawesi"],
+                correctAnswer: 0,
+                explanation: "Sasando adalah alat musik petik tradisional yang berasal dari pulau Rote, Nusa Tenggara Timur."
+            },
+            {
+                question: "Hari Kemerdekaan Indonesia diperingati setiap tanggal?",
+                choices: ["17 Agustus", "1 Juni", "28 Oktober", "10 November"],
+                correctAnswer: 0,
+                explanation: "Indonesia merdeka pada tanggal 17 Agustus 1945, sehingga Hari Kemerdekaan diperingati setiap tanggal 17 Agustus."
+            },
+            {
+                question: "Candi Borobudur terletak di provinsi?",
+                choices: ["Jawa Tengah", "Jawa Timur", "Jawa Barat", "DI Yogyakarta"],
+                correctAnswer: 0,
+                explanation: "Candi Borobudur terletak di Magelang, Jawa Tengah dan merupakan candi Buddha terbesar di dunia."
+            }
+        ];
+
+        // Variabel untuk menyimpan status pemain dan game
+        let playerName = "";
+        let currentScore = 0;
+        let currentLevel = 1;
+        let currentQuestionIndex = 0;
+        let health = 100;
+        let usedQuestions = [];
+
+        // Mendapatkan elemen-elemen yang diperlukan
+        const startScreen = document.getElementById("start-screen");
+        const gameArea = document.getElementById("game-area");
+        const gameOverScreen = document.getElementById("game-over-screen");
+        const questionText = document.getElementById("question-text");
+        const choicesArea = document.getElementById("choices-area");
+        const feedback = document.getElementById("feedback");
+        const nextBtn = document.getElementById("next-btn");
+        const scoreDisplay = document.getElementById("score");
+        const finalScoreDisplay = document.getElementById("final-score");
+        const levelDisplay = document.getElementById("level");
+        const resultMessage = document.getElementById("result-message");
+        const healthBar = document.getElementById("health");
+        const playerNameDisplay = document.getElementById("player-name");
+        const currentQuestionDisplay = document.getElementById("current-question");
+        const totalQuestionsDisplay = document.getElementById("total-questions");
+
+        // Memulai permainan
+        function startGame() {
+            const nameInput = document.getElementById("name-input");
+            playerName = nameInput.value.trim() || "Petualang Anonim";
+            playerNameDisplay.textContent = "Petualang: " + playerName;
+            
+            startScreen.classList.add("hidden");
+            gameArea.classList.remove("hidden");
+            
+            // Set jumlah pertanyaan total
+            totalQuestionsDisplay.textContent = "10";
+            
+            // Reset variabel game
+            currentScore = 0;
+            currentLevel = 1;
+            health = 100;
+            usedQuestions = [];
+            
+            // Update tampilan
+            updateScoreAndLevel();
+            updateHealthBar();
+            
+            // Tampilkan pertanyaan pertama
+            showQuestion();
+        }
+
+        // Menampilkan pertanyaan
+        function showQuestion() {
+            // Update nomor pertanyaan saat ini
+            currentQuestionDisplay.textContent = usedQuestions.length + 1;
+            
+            // Pilih pertanyaan acak yang belum digunakan
+            let availableQuestions = questions.filter(q => !usedQuestions.includes(q));
+            if (availableQuestions.length === 0) {
+                // Jika semua pertanyaan sudah digunakan, reset usedQuestions
+                usedQuestions = [];
+                availableQuestions = questions;
+            }
+            
+            const randomIndex = Math.floor(Math.random() * availableQuestions.length);
+            currentQuestionIndex = questions.indexOf(availableQuestions[randomIndex]);
+            usedQuestions.push(availableQuestions[randomIndex]);
+            
+            const question = questions[currentQuestionIndex];
+            
+            // Tampilkan pertanyaan
+            questionText.textContent = question.question;
+            
+            // Bersihkan area pilihan
+            choicesArea.innerHTML = "";
+            
+            // Tambahkan pilihan jawaban
+            question.choices.forEach((choice, index) => {
+                const button = document.createElement("button");
+                button.className = "choice-btn";
+                button.textContent = choice;
+                button.onclick = () => checkAnswer(index);
+                choicesArea.appendChild(button);
+            });
+            
+            // Sembunyikan feedback dan tombol next
+            feedback.classList.add("hidden");
+            nextBtn.classList.add("hidden");
+        }
+
+        // Memeriksa jawaban
+        function checkAnswer(choiceIndex) {
+            const question = questions[currentQuestionIndex];
+            const isCorrect = choiceIndex === question.correctAnswer;
+            
+            // Tampilkan feedback
+            feedback.classList.remove("hidden");
+            if (isCorrect) {
+                feedback.textContent = "Benar! " + question.explanation;
+                feedback.className = "feedback correct";
+                
+                // Tambah skor
+                const scorePlus = 10 * currentLevel;
+                currentScore += scorePlus;
+                
+                // Periksa apakah naik level
+                if (currentScore >= currentLevel * 50) {
+                    currentLevel++;
+                }
+                
+                updateScoreAndLevel();
+            } else {
+                feedback.textContent = "Salah! Jawaban yang benar adalah: " + question.choices[question.correctAnswer] + ". " + question.explanation;
+                feedback.className = "feedback incorrect";
+                
+                // Kurangi nyawa
+                health -= 20;
+                updateHealthBar();
+                
+                // Cek game over
+                if (health <= 0) {
+                    setTimeout(endGame, 1500);
+                    return;
+                }
+            }
+            
+            // Nonaktifkan tombol pilihan
+            const choiceButtons = document.querySelectorAll(".choice-btn");
+            choiceButtons.forEach(button => {
+                button.disabled = true;
+                if (button.textContent === question.choices[question.correctAnswer]) {
+                    button.style.backgroundColor = "#5cb85c";
+                }
+            });
+            
+            // Tampilkan tombol next
+            nextBtn.classList.remove("hidden");
+        }
+
+        // Pindah ke pertanyaan berikutnya
+        function nextQuestion() {
+            // Cek apakah sudah 10 pertanyaan
+            if (usedQuestions.length >= 10) {
+                endGame();
+                return;
+            }
+            
+            showQuestion();
+        }
+
+        // Update tampilan skor dan level
+        function updateScoreAndLevel() {
+            scoreDisplay.textContent = currentScore;
+            levelDisplay.textContent = currentLevel;
+        }
+
+        // Update health bar
+        function updateHealthBar() {
+            healthBar.style.width = health + "%";
+        }
+
+        // Akhir permainan
+        function endGame() {
+            gameArea.classList.add("hidden");
+            gameOverScreen.classList.remove("hidden");
+            finalScoreDisplay.textContent = currentScore;
+            
+            // Tampilkan pesan hasil
+            if (health <= 0) {
+                resultMessage.textContent = "Wah, nyawamu habis! Jangan menyerah, " + playerName + "! Coba lagi untuk mengeksplorasi keindahan budaya Nusantara.";
+            } else {
+                resultMessage.textContent = "Selamat, " + playerName + "! Kamu telah menyelesaikan petualangan di Nusantara. Terus pelajari kekayaan budaya Indonesia!";
+            }
+        }
+
+        // Reset permainan
+        function resetGame() {
+            gameOverScreen.classList.add("hidden");
+            startScreen.classList.remove("hidden");
+            document.getElementById("name-input").value = playerName;
+        }
+    </script>
+</body>
+</html>
